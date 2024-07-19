@@ -1,0 +1,40 @@
+<div class="container">
+    <div class="mt-5 pb-3 border-bottom w-100">
+        <h2>New project</h2>
+    </div>
+
+    <%= form_with(model: @project, url: create_project_path) do |form|%>
+        <div class="container">
+            <div class="field row my-3">
+                <%= form.label "Project name", class: "col-2 fw-bold" %>
+                <%= form.text_field :name, class: "col-10" %>
+            </div>
+            <div class="field row my-2">
+                <%= form.label "Project code",class: "col-2 fw-bold" %>
+                <%= form.text_field :code, class: "col-2" %>
+            </div>
+            <div class="field row mb-3">
+                <div class="col-2"></div>
+                <small class="col-10 text-muted" style="margin-left: -10px; margin-top:-10px">Optional. A code help identify your project. You can use any combination of numbers or letters.</small>
+            </div>
+        </div>
+
+        <div class="p-2 border-bottom border-top w-100 border-dark" style="background-color: #eeeeee;">
+            <h4>Task</h4>
+        </div>
+
+        <div id="tasks">
+            
+        </div>
+
+        <div class="input-group my-3">
+            <input type="text" id="new-task-name" class="form-control" placeholder="Add a task...">
+        </div>
+
+        <div class="actions py-3">
+            <%= form.submit "Save project" %>
+        </div>
+    <% end %>
+</div>
+
+<%= javascript_include_tag "tasks" %>

@@ -1,0 +1,26 @@
+<div class="container d-flex flex-row justify-content-center align-items-center vh-100">
+    <div class= "card p-5 mx-auto my-auto">
+        <h1>Log In</h1>
+
+        <div class="card-body">
+            <%= form_with model: @user, url: session_path do |form|%>
+                <div class="field">
+                    <%= form.label :email %><br />
+                    <%= form.text_field :email %>
+                </div>
+
+                <div class="field">    
+                    <%= form.label :password %><br />
+                    <%= form.password_field :password %>
+                </div>
+
+                <div class="actions py-3">
+                    <%= form.submit "Log In" %>
+                </div> 
+            <% end %>
+        </div>
+
+        <%= link_to "Forgot Password?", new_password_reset_path %>
+        <%= link_to "Dont have an account? Sign Up", new_registration_path %>
+    </div>
+</div>
