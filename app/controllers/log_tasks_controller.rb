@@ -1,5 +1,5 @@
 class LogTasksController < ApplicationController
-  before_action :set_log_task, only: [:edit, :update, :update_timer]
+  before_action :set_log_task, only: [:edit, :update, :update_timer, :destroy]
 
   def index
   end
@@ -43,6 +43,14 @@ class LogTasksController < ApplicationController
     end
   end
 
+  def destroy
+    @log_task.destroy
+    respond_to do |format|
+      format.html { redirect_to log_task_path, notice: 'Project was successfully destroyed.' }
+      format.json { head :no_content }
+    end
+  end
+
   def log_list
     date = params[:date]
     log_tasks = current_user.log_tasks.where(date: date)
@@ -53,6 +61,7 @@ class LogTasksController < ApplicationController
         task: {
           name: log.task.name,
           project: {
+            id: log.task.project.id,
             name: log.task.project.name,
             code: log.task.project.code
           }
@@ -69,8 +78,29 @@ class LogTasksController < ApplicationController
   end
 
   def log_task_by_id
-    log_task = LogTask.find_by(id: params[:id])
+    logTask = LogTask.find(params[:id])
+
+    log_task = {
+      id: logTask.id,
+      task: {
+        id: logTask.task.id,
+        name: logTask.task.name,
+        project: {
+          id: logTask.task.project.id,
+          name: logTask.task.project.name,
+          code: logTask.task.project.code
+        }
+      },
+      user: {
+        username: logTask.user.username
+      },
+      notes: logTask.notes,
+      timer: logTask.timer
+    }
+
+    render json: { logTask: log_task }
   end
+
 
   def update_timer
     if @log_task.update(timer: params[:timer])

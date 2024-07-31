@@ -2,7 +2,8 @@ document.addEventListener('turbo:load', function() {
   let taskIndex = document.querySelectorAll('#tasks .input-group').length;
   const tasksDiv = document.getElementById('tasks');
   const newTaskName = document.getElementById('new-task-name');
-  
+  const userId = document.querySelector('.container').dataset.userId; // Get the current user's ID from the data attribute
+
   newTaskName.addEventListener('keypress', function(e) {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -16,7 +17,8 @@ document.addEventListener('turbo:load', function() {
             </div>
             <div class="form-control task-name">${newTaskName.value}</div>
             <input type="hidden" name="project[tasks_attributes][${taskIndex}][name]" id="project_tasks_attributes_${taskIndex}_name" value="${newTaskName.value}">
-            <input type="hidden" name="project[tasks_attributes][${taskIndex}][destroy]" id="project_tasks_attributes${taskIndex}__destroy" value="false">
+            <input type="hidden" name="project[tasks_attributes][${taskIndex}][user_id]" id="project_tasks_attributes_${taskIndex}_user_id" value="${userId}">
+            <input type="hidden" name="project[tasks_attributes][${taskIndex}][_destroy]" id="project_tasks_attributes_${taskIndex}__destroy" value="false">
           </div>
         `;
         tasksDiv.insertAdjacentHTML('beforeend', taskTemplate);
@@ -30,7 +32,7 @@ document.addEventListener('turbo:load', function() {
     if (e.target && e.target.matches('button.remove-task, button.remove-task i')) {
       e.preventDefault();
       const taskDiv = e.target.closest('.input-group');
-      taskDiv.querySelector('input[type="hidden"]').value = '1';
+      taskDiv.querySelector('input[type="hidden"][name*="_destroy"]').value = '1';
       taskDiv.style.display = 'none';
     }
   });

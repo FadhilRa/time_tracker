@@ -2,10 +2,10 @@
   <div class="container-fluid w-100">
     <ul class="navbar-nav ms-4">
       <li class="nav-item">
-        <%= link_to "Time", log_task_path, class:"nav-link text-white"%>
+        <a href="<%= log_task_path %>" class="nav-link text-white" onclick="window.location.href='<%= log_task_path %>';">Time</a>
       </li>
       <li class="nav-item">
-        <%= link_to "Projects", new_project_path, class:"nav-link text-white"%>
+        <a href="<%= projects_path %>" class="nav-link text-white" onclick="window.location.href='<%= projects_path %>';">Projects</a>
       </li>
     </ul>
     <div class="dropdown me-5">

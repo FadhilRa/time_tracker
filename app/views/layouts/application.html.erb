@@ -11,18 +11,19 @@
   </head>
 
   <body>
-    <% if current_user %>
+    <% if current_user%>
       <%= render "layouts/navbar" %>
     <% end %>
-    <% if notice %>
+    <!-- <% if notice %>
       <p class="notice"><%= notice %></p>
     <% elsif alert %>
       <p class="alert"><%= alert %></p>
-    <% end %>
+    <% end %> -->
 
     <%= javascript_include_tag "create_log" %>
     <%= javascript_include_tag "time_page" %>
     <%= javascript_include_tag "timer_button" %>
+    <%= javascript_include_tag "modal" %>
 
     <%= yield %>
   </body>

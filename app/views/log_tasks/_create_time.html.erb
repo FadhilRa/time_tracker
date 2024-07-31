@@ -1,4 +1,4 @@
-<a href="#" id="open-modal" data-bs-toggle="modal" data-bs-target="#exampleModal" class="d-flex justify-content-center align-items-start pt-5" style="text-decoration:none">
+<a href="#" id="open-modal-create" data-bs-toggle="modal" data-bs-target="#exampleModal" class="d-flex justify-content-center align-items-start pt-5" style="text-decoration:none">
     <i class="fa-solid fa-plus p-4 rounded-4 text-white fs-1 bg-success"></i>
 </a>
 
@@ -9,12 +9,11 @@
             <div class="modal-header d-flex justify-content-center" style="background-color: #efefef;">
                 <h1 class="modal-title fs-6 fw-bold" id="exampleModalLabel"></h1>
             </div>
-            <%= form_with(model: @log_task, url: create_log_task_path, id: 'log-task-form') do |form| %>
+            <%= form_with(model: @log_task, url: "#", id: 'log-task-form', method: "POST") do |form| %>
                 <div class="modal-body">
-                    <input type="hidden" id="log_task_id" name="log_task[id]" />
                     <input type="hidden" id="log_task_date" name="log_task[date]" />
                     <div class="fw-bold">Project / Task</div>
-                    <select class="form-select mt-2" id="project">
+                    <select class="form-select mt-2" id="project-select">
                         <option value=""></option>
                         <% current_user.projects.each do |project| %>
                             <option value="<%= project.id %>">
@@ -34,7 +33,7 @@
                             <%= form.text_field :timer, class: "form-control mt-2", placeholder: "0:00", name: "log_task[timer]", id: "log_task_timer" %>
                         </div>
                     </div>
-                    <div class="mt-3">
+                    <div class="mt-3 d-flex gap-2" id="action-modal-logTask">
                         <%= form.submit "Start timer", class: "btn btn-success", id: "log-task-submit" %>
                         <button type="button" class="btn border" data-bs-dismiss="modal">Cancel</button>
                     </div>
