@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_12_033527) do
+ActiveRecord::Schema[7.1].define(version: 2024_09_06_073356) do
   create_table "log_tasks", force: :cascade do |t|
     t.string "notes"
     t.date "date"
@@ -42,12 +42,21 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_12_033527) do
     t.index ["user_id"], name: "index_tasks_on_user_id"
   end
 
+  create_table "teams", force: :cascade do |t|
+    t.string "name"
+    t.integer "owner_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["owner_id"], name: "index_teams_on_owner_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email"
     t.string "username"
     t.string "password_digest"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "role", default: "team_member"
   end
 
   add_foreign_key "log_tasks", "tasks"
@@ -55,4 +64,5 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_12_033527) do
   add_foreign_key "projects", "users"
   add_foreign_key "tasks", "projects"
   add_foreign_key "tasks", "users"
+  add_foreign_key "teams", "owners"
 end

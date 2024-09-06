@@ -12,7 +12,18 @@ class User < ApplicationRecord
     email
   end
 
+  # Relasi dengan Tim
+  belongs_to :team, optional: true
+  
+  # Definisikan peran pengguna dengan enum
+  enum role: { team_member: 0, admin: 1 }
+
   has_many :projects
   has_many :tasks
   has_many :log_tasks, class_name: 'LogTask'
+
+  # Fungsi untuk memeriksa apakah user adalah admin
+  def admin?
+    role == 'admin'
+  end
 end

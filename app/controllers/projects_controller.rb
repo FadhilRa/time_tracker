@@ -1,5 +1,6 @@
 class ProjectsController < ApplicationController
   before_action :set_project, only: [:edit, :update, :destroy]
+  before_action :authorize_admin
 
   def index
     @projects = current_user.projects
@@ -73,5 +74,9 @@ class ProjectsController < ApplicationController
 
   def set_project
     @project = current_user.projects.find(params[:id])
+  end
+
+  def authorize_admin
+    redirect_to root_path, alert: 'Access denied' unless current_user.admin?
   end
 end
