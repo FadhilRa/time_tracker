@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_09_06_073356) do
+ActiveRecord::Schema[7.1].define(version: 2024_09_06_154500) do
   create_table "log_tasks", force: :cascade do |t|
     t.string "notes"
     t.date "date"
@@ -56,7 +56,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_06_073356) do
     t.string "password_digest"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "role", default: "team_member"
+    t.integer "role", default: 0
   end
 
   add_foreign_key "log_tasks", "tasks"

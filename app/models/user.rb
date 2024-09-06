@@ -14,7 +14,7 @@ class User < ApplicationRecord
 
   # Relasi dengan Tim
   belongs_to :team, optional: true
-  
+
   # Definisikan peran pengguna dengan enum
   enum role: { team_member: 0, admin: 1 }
 

@@ -30,6 +30,11 @@
                     <%= form.password_field :password_confirmation %>
                 </div>
 
+                <div class="field">
+                    <%= form.label :role %><br />
+                    <%= form.select :role, {"Member" => "team_member", "Admin" => "admin"}, {include_blank: "Choose Role"} %>
+                </div>
+
                 <div class="actions py-3">
                     <%= form.submit "Sign Up" %>
                 </div> 

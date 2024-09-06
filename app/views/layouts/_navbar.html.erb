@@ -6,7 +6,7 @@
       </li>
 
       <!-- Tampilkan proyek hanya untuk admin -->
-      <% if current_user&.admin? %> <!-- Hanya admin yang bisa melihat Projects -->
+      <% if current_user.admin? %> <!-- Hanya admin yang bisa melihat Projects -->
         <li class="nav-item">
           <a href="<%= projects_path %>" class="nav-link text-white" onclick="window.location.href='<%= projects_path %>';">Projects</a>
         </li>
