@@ -8,14 +8,12 @@ document.body.addEventListener("click", function (event) {
 
         let daysRow = document.getElementById("days");
         let dayElement = daysRow.getElementsByClassName("text-dark")[0].getElementsByTagName("span")[0];
-        let totalDay = dayElement.textContent.trim();
 
         let dayIndex = (currentDate.getDay() + 6) % 7;
         let test = dayElements[dayIndex].total;
         let test1 = test.textContent;
 
         let clockIcon = dayElements[dayIndex].clockIcon;
-        console.log(timers);
 
         [hourDay, minuteDay, secondDay] = test1.split(':').map(Number);
         console.log(hourDay, minuteDay, secondDay);
@@ -47,11 +45,12 @@ document.body.addEventListener("click", function (event) {
                 running: false,
                 date: currentDate,
                 clockIcon: clockIcon,
+                log_task: log_task,
                 button: event.target,
             };
         }
 
-        startTimer(timers, log_id, log_task, event.target);
+        startTimer(timers, log_id, log_task);
     }
 });
 
@@ -75,31 +74,31 @@ function stopAllRunningTimers(excludeLogId) {
     }
 }
 
-function startTimer(timers, log_id, log_task, button) {
+function startTimer(timers, log_id) {
     if (timers[log_id].running) {
         clearInterval(timers[log_id].logId);
         clearInterval(timers[log_id].dayId);
         clearInterval(timers[log_id].weekId);
         timers[log_id].running = false;
         timers[log_id].clockIcon.style.display = "none";
-        button.classList.remove("bg-dark", "text-white");
-        button.innerHTML = `
+        timers[log_id].button.classList.remove("bg-dark", "text-white");
+        timers[log_id].button.innerHTML = `
             <i class="fa-regular fa-clock"></i>
             Start
         `;
-        log_task.style.backgroundColor = "#fafafa";
+        timers[log_id].log_task.style.backgroundColor = "#fafafa";
         saveTimer(log_id, `${String(timers[log_id].hour).padStart(2, '0')}:${String(timers[log_id].minute).padStart(2, '0')}`);
     } else {
         updateTimer(log_id);
 
         timers[log_id].running = true;
         timers[log_id].clockIcon.style.display = "inline";
-        button.classList.add("bg-dark", "text-white");
-        button.innerHTML = `
+        timers[log_id].button.classList.add("bg-dark", "text-white");
+        timers[log_id].button.innerHTML = `
             <i class="fa-regular fa-clock"></i>
             Stop
         `;
-        log_task.style.backgroundColor = "#fff8f0";
+        timers[log_id].log_task.style.backgroundColor = "#fff8f0";
     }
 }
 
@@ -125,10 +124,19 @@ function updateLogTimer(log_id) {
                     timer.minute = 59;
                     timer.hour--;
                 } else {
-                    clearInterval(timer.intervalId);
+                    clearInterval(timer.logId);
+                    clearInterval(timer.dayId);
+                    clearInterval(timer.weekId);
                     timer.running = false;
-                    timer.button.textContent = "Start";
+                    timer.button.classList.remove("bg-dark", "text-white");
+                    timer.button.innerHTML = `
+                        <i class="fa-regular fa-clock"></i>
+                        Start
+                    `;
+                    timer.log_task.style.backgroundColor = "#fafafa";
+                    timer.clockIcon.style.display = "none";
                     alert("Timer finished!");
+                    saveTimer(log_id, `${String(timer.hour).padStart(2, '0')}:${String(timer.minute).padStart(2, '0')}`);
                     return;
                 }
             }
@@ -140,6 +148,7 @@ function updateLogTimer(log_id) {
 function updateDayTimer(log_id) {
     let timer = timers[log_id];
     let dayIndex = (timer.date.getDay() + 6) % 7;
+    let dateKey = timer.date.toISOString().split('T')[0];
     timer.dayId = setInterval(function () {
         let dayTimerElement = dayElements[dayIndex].total;
         let totalDayLogsElement = document.getElementById("day-total-" + dayIndex);
@@ -159,15 +168,27 @@ function updateDayTimer(log_id) {
                 }
             }
         }
-        dayTimerElement.innerHTML = `${String(timer.hourDay).padStart(2, '0')}:${String(timer.minuteDay).padStart(2, '0')}:${String(timer.secondDay).padStart(2, '0')}`;
-        totalDayLogsElement.innerHTML = `${String(timer.hourDay).padStart(2, '0')}:${String(timer.minuteDay).padStart(2, '0')}:${String(timer.secondDay).padStart(2, '0')}`;
+        if (dayTimerElement.classList == dateKey) {
+            dayTimerElement.innerHTML = `${String(timer.hourDay).padStart(2, '0')}:${String(timer.minuteDay).padStart(2, '0')}:${String(timer.secondDay).padStart(2, '0')}`;
+            totalDayLogsElement.innerHTML = `${String(timer.hourDay).padStart(2, '0')}:${String(timer.minuteDay).padStart(2, '0')}:${String(timer.secondDay).padStart(2, '0')}`;
+        } else {
+            timer.clockIcon.style.display = "none";
+        }
     }, 1000);
 }
 
 function updateWeekTimer(log_id) {
     let timer = timers[log_id];
+    let currentDay = timer.date.getDate();
+    let currentMonth = timer.date.getMonth() + 1;
     timer.weekId = setInterval(function () {
         let totalWeekTimerElement = document.getElementById("week-total");
+        let classDates = totalWeekTimerElement.className.split(':');
+        let startDate = classDates[0].split('-').map(Number);
+        let endDate = classDates[1].split('-').map(Number);
+
+        let isWithinRange = (currentMonth > startDate[1] || (currentMonth === startDate[1] && currentDay >= startDate[0])) &&
+                            (currentMonth < endDate[1] || (currentMonth === endDate[1] && currentDay <= endDate[0]));
         if (timer.secondWeek > 0) {
             timer.secondWeek--;
         } else {
@@ -186,7 +207,9 @@ function updateWeekTimer(log_id) {
                 }
             }
         }
-        totalWeekTimerElement.innerHTML = `${String(timer.hourWeek).padStart(2, '0')}:${String(timer.minuteWeek).padStart(2, '0')}:${String(timer.secondWeek).padStart(2, '0')}`;
+        if (isWithinRange) {
+            totalWeekTimerElement.innerHTML = `${String(timer.hourWeek).padStart(2, '0')}:${String(timer.minuteWeek).padStart(2, '0')}:${String(timer.secondWeek).padStart(2, '0')}`;
+        }
     }, 1000);
 }
 

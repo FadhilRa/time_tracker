@@ -225,25 +225,33 @@ document.addEventListener("turbo:load", function () {
     }
 
     function showWeeklyLogs() {
-        const startOfWeek = new Date();
+        const startOfWeek = new Date(currentDate);
         startOfWeek.setDate(currentDate.getDate() - ((currentDate.getDay() + 6) % 7));
         let totalWeekMinutes = 0;
         const promises = [];
+        let firstLastDay;
 
         for (let i = 0; i < 7; i++) {
             const date = new Date(startOfWeek);
             date.setDate(startOfWeek.getDate() + i);
             const dateKey = date.toISOString().split('T')[0];
 
+            if (i == 0) {
+                firstLastDay = date.getDate() + "-" + (date.getMonth() + 1);
+            }else if (i == 6) {
+                const temp = firstLastDay;
+                firstLastDay = temp + ":" + date.getDate() + "-" + (date.getMonth() + 1);
+            }
+
             if (fetchedDays[dateKey]) {
-                renderWeeklyLog(date, fetchedDays[dateKey]);
+                renderWeeklyLog(dateKey, date, fetchedDays[dateKey]);
                 totalWeekMinutes += calculateTotalMinutes(fetchedDays[dateKey]);
             } else {
                 const promise = fetch(`log_tasks/${dateKey}/log_list`)
                     .then(response => response.json())
                     .then(data => {
                         fetchedDays[dateKey] = data.logList;
-                        renderWeeklyLog(date, data.logList);
+                        renderWeeklyLog(dateKey, date, data.logList);
                         totalWeekMinutes += calculateTotalMinutes(data.logList);
                     })
                     .catch(error => console.error('Error fetching tasks:', error));
@@ -251,22 +259,26 @@ document.addEventListener("turbo:load", function () {
                 promises.push(promise);
             }
         }
+        console.log(firstLastDay);
 
         Promise.all(promises)
             .then(() => {
                 totalWeekFormatted = convertMinutesToTime(totalWeekMinutes); // Update the global variable
                 document.getElementById("week-total").textContent = totalWeekFormatted;
+                document.getElementById("week-total").classList = firstLastDay;
             })
             .catch(error => console.error('Error fetching tasks:', error));
     }
 
-    function renderWeeklyLog(date, logList) {
+    function renderWeeklyLog(dateKey, date, logList) {
         let totalTimeDay = calculateTotalMinutes(logList);
         const totalFormatted = convertMinutesToTime(totalTimeDay);
         dayElements[(date.getDay() + 6) % 7].total.textContent = totalFormatted;
+        dayElements[(date.getDay() + 6) % 7].total.classList = dateKey;
     }
 
     function calculateTotalMinutes(logList) {
+        if (!logList || !Array.isArray(logList)) return 0;
         return logList.reduce((total, log) => total + convertTimeToMinutes(log.timer), 0);
     }
 
@@ -294,6 +306,7 @@ document.addEventListener("turbo:load", function () {
         updateDateDisplay();
         updateDayHighlight();
         showWeeklyLogs(); // Panggil untuk memperbarui log mingguan
+        showLogs();
     });
 
     arrowRight.addEventListener("click", function () {
@@ -302,6 +315,7 @@ document.addEventListener("turbo:load", function () {
         updateDateDisplay();
         updateDayHighlight();
         showWeeklyLogs(); // Panggil untuk memperbarui log mingguan
+        showLogs();
     });
 
     returnToday.addEventListener("click", function () {
@@ -309,6 +323,7 @@ document.addEventListener("turbo:load", function () {
         updateDateDisplay();
         updateDayHighlight();
         showWeeklyLogs();
+        showLogs();
     });
 
     openModal.addEventListener("click", function () {
