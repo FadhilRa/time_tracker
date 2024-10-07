@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("turbo:load", function () {
     document.body.addEventListener("click", function (event) {
         const modalLabel = document.getElementById("exampleModalLabel");
         const logTaskDateInput = document.getElementById("log_task_date");

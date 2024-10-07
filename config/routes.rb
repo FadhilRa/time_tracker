@@ -8,6 +8,7 @@ Rails.application.routes.draw do
   resources :projects
   resource :time
   resource :log_task
+  resource :user
 
   get 'projects/:id/tasks', to: 'projects#tasks', as: :project_tasks
   get 'log_tasks/:date/log_list', to: 'log_tasks#log_list', as: :log_list
