@@ -7,6 +7,7 @@ document.addEventListener('turbo:load', function() {
 
     projectSelect.addEventListener('change', function() {
         const projectId = this.value;
+        console.log(projectId);
 
         fetch(`/projects/${projectId}/tasks`)
             .then(response => response.json())

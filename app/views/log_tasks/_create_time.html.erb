@@ -15,7 +15,13 @@
                     <div class="fw-bold">Project / Task</div>
                     <select class="form-select mt-2" id="project-select">
                         <option value=""></option>
-                        <% current_user.projects.each do |project| %>
+
+                        <% current_user_projects = Project
+                            .left_joins(:project_members)
+                            .where("projects.user_id = ? OR project_members.user_id = ?", current_user.id, current_user.id)
+                            .distinct %>
+
+                        <% current_user_projects.each do |project| %>
                             <option value="<%= project.id %>">
                                 <% if project.code.present? %>
                                     [<%= project.code %>]
@@ -24,7 +30,9 @@
                             </option>
                         <% end %>
                     </select>
+
                     <%= form.collection_select :task_id, current_user.tasks.all, :id, :name, { prompt: "" }, { class: 'form-select mt-2', name: 'log_task[task_id]', id: 'task-select' } %>
+                    
                     <div class="row mt-2">
                         <div class="col-9">
                             <%= form.text_field :notes, class: "form-control mt-2", placeholder: "Notes (optional)", name: "log_task[notes]", id: "log_task_notes" %>
@@ -33,6 +41,7 @@
                             <%= form.text_field :timer, class: "form-control mt-2", placeholder: "0:00", name: "log_task[timer]", id: "log_task_timer" %>
                         </div>
                     </div>
+
                     <div class="mt-3 d-flex gap-2" id="action-modal-logTask">
                         <%= form.submit "Start timer", class: "btn btn-success", id: "log-task-submit" %>
                         <button type="button" class="btn border" data-bs-dismiss="modal">Cancel</button>
@@ -42,3 +51,4 @@
         </div>
     </div>
 </div>
+

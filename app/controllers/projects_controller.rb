@@ -1,6 +1,6 @@
 class ProjectsController < ApplicationController
   before_action :set_project, only: [:edit, :update, :destroy, :add_members]
-  before_action :authorize_admin
+  before_action :authorize_admin, except: [:tasks] # Exclude tasks action from admin authorization
 
   def index
     @projects = current_user.projects
@@ -35,7 +35,7 @@ class ProjectsController < ApplicationController
 
   def add_members
     project = current_user.projects.find(params[:id])
-    
+
     if params[:user_ids].present?
       user_ids = params[:user_ids].split(',')
       user_ids.each do |user_id|
