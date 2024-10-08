@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_10_07_163003) do
+ActiveRecord::Schema[7.1].define(version: 2024_10_08_085651) do
   create_table "log_tasks", force: :cascade do |t|
     t.string "notes"
     t.date "date"
@@ -39,13 +39,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_07_163003) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_projects_on_user_id"
-  end
-
-  create_table "projects_users", id: false, force: :cascade do |t|
-    t.integer "project_id"
-    t.integer "user_id"
-    t.index ["project_id"], name: "index_projects_users_on_project_id"
-    t.index ["user_id"], name: "index_projects_users_on_user_id"
   end
 
   create_table "tasks", force: :cascade do |t|
@@ -80,7 +73,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_07_163003) do
   add_foreign_key "project_members", "projects"
   add_foreign_key "project_members", "users"
   add_foreign_key "projects", "users"
-  add_foreign_key "tasks", "projects"
+  add_foreign_key "tasks", "projects", on_delete: :cascade
   add_foreign_key "tasks", "users"
   add_foreign_key "teams", "owners"
 end
