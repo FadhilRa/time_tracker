@@ -49,6 +49,15 @@ class ProjectsController < ApplicationController
     render json: { error: 'Project not found' }, status: :not_found
   end
 
+  def delete_member
+    project = current_user.projects.find(params[:id])
+    member = project.project_members.find_by(user_id: params[:user_id])
+    member.destroy
+    render json: { message: 'Member deleted successfully' }, status: :ok
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: 'Member not found' }, status: :not_found
+  end
+
   def members
     project = current_user.projects.find(params[:id])
     members = project.users.select(:id, :username, :email) # Atur kolom yang ingin ditampilkan
@@ -76,26 +85,26 @@ class ProjectsController < ApplicationController
 
   def destroy
     @project = current_user.projects.find(params[:id])
-    
+
     Rails.logger.info("Attempting to delete Project ID: #{@project.id}")
-    
+
     # Menghapus anggota proyek
     @project.project_members.destroy_all
     Rails.logger.info("Deleted project members for Project ID: #{@project.id}")
-    
+
     # Menghapus log_task terkait sebelum tugas
     @project.tasks.each do |task|
       task.log_task&.destroy # Hapus log_task jika ada
     end
-  
+
     # Menghapus tugas terkait
     @project.tasks.destroy_all
     Rails.logger.info("Deleted tasks for Project ID: #{@project.id}")
-  
+
     # Menghapus proyek itu sendiri
     @project.destroy
     Rails.logger.info("Project ID: #{@project.id} was successfully destroyed")
-  
+
     flash[:notice] = 'Project was successfully destroyed.'
     respond_to do |format|
       format.html { redirect_to projects_path }
@@ -105,9 +114,9 @@ class ProjectsController < ApplicationController
     flash[:alert] = 'Project not found.'
     render json: { error: 'Project not found' }, status: :not_found
   end
-  
-  
-  
+
+
+
 
   def tasks
     project = Project.find(params[:id])

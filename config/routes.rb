@@ -7,6 +7,7 @@ Rails.application.routes.draw do
   resource :password
   resources :projects do
     post 'add_members', on: :member
+    delete 'delete_member', on: :member # Add this line for the delete_member route
   end
   resource :time
   resource :log_task
@@ -17,7 +18,6 @@ Rails.application.routes.draw do
   get 'log_tasks/:id', to: 'log_tasks#log_task_by_id', as: :log_tasks_by_id
   get 'users/search', to: 'users#search'
   get 'projects/:id/members', to: 'projects#members'
-
 
   root "log_tasks#show"
 
