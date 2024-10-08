@@ -24,7 +24,10 @@
                 <div class="col-4 d-flex justify-content-center align-items-center"><%= project.name %></div>
                 <div class="col-2 d-flex justify-content-center align-items-center"><%= project.tasks.count %></div>
                 <div class="col-2 d-flex justify-content-center align-items-center gap-1">
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#members">
+                    <button type="button" class="btn btn-primary" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#members" 
+                            data-project-id="<%= project.id %>">
                         Members
                     </button>
                     <%= link_to "Edit", edit_project_path(project), class: "btn btn-success", onclick: "window.location.href='#{edit_project_path(project)}';" %>
@@ -35,4 +38,4 @@
     </div>
 </div>
 
-<%= render "projects/member" %>
+<%= render "projects/member" %> <!-- Memanggil modal di sini -->

@@ -5,14 +5,19 @@ Rails.application.routes.draw do
   resource :registration
   resource :password_reset
   resource :password
-  resources :projects
+  resources :projects do
+    post 'add_members', on: :member
+  end
   resource :time
   resource :log_task
-  resource :user
+  resource :userz
 
   get 'projects/:id/tasks', to: 'projects#tasks', as: :project_tasks
   get 'log_tasks/:date/log_list', to: 'log_tasks#log_list', as: :log_list
   get 'log_tasks/:id', to: 'log_tasks#log_task_by_id', as: :log_tasks_by_id
+  get 'users/search', to: 'users#search'
+  get 'projects/:id/members', to: 'projects#members'
+
 
   root "log_tasks#show"
 

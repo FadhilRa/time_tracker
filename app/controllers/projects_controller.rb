@@ -1,5 +1,5 @@
 class ProjectsController < ApplicationController
-  before_action :set_project, only: [:edit, :update, :destroy]
+  before_action :set_project, only: [:edit, :update, :destroy, :add_members]
   before_action :authorize_admin
 
   def index
@@ -16,6 +16,7 @@ class ProjectsController < ApplicationController
   end
 
   def create
+    Rails.logger.info("User IDs received: #{params[:project][:user_ids]}")
     @project = current_user.projects.new(project_params)
     @project.tasks.each do |task|
       task.user = current_user
@@ -30,6 +31,28 @@ class ProjectsController < ApplicationController
         format.json { render json: @project.errors, status: :unprocessable_entity }
       end
     end
+  end
+
+  def add_members
+    project = current_user.projects.find(params[:id])
+    
+    if params[:user_ids].present?
+      user_ids = params[:user_ids].split(',')
+      user_ids.each do |user_id|
+        project.project_members.find_or_create_by(user_id: user_id)
+      end
+      render json: { message: 'Members added successfully' }, status: :ok
+    else
+      render json: { error: 'No user IDs provided' }, status: :unprocessable_entity
+    end
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: 'Project not found' }, status: :not_found
+  end
+
+  def members
+    project = current_user.projects.find(params[:id])
+    members = project.users.select(:id, :username, :email) # Atur kolom yang ingin ditampilkan
+    render json: members
   end
 
   def edit
@@ -62,14 +85,13 @@ class ProjectsController < ApplicationController
   def tasks
     project = Project.find(params[:id])
     tasks = project.tasks
-
     render json: { tasks: tasks }
   end
 
   private
 
   def project_params
-    params.require(:project).permit(:name, :code, tasks_attributes: [:id, :name, :user_id, :_destroy])
+    params.require(:project).permit(:name, :code, tasks_attributes: [:id, :name, :user_id, :_destroy], user_ids: [])
   end
 
   def set_project

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_09_06_154500) do
+ActiveRecord::Schema[7.1].define(version: 2024_10_07_163003) do
   create_table "log_tasks", force: :cascade do |t|
     t.string "notes"
     t.date "date"
@@ -23,6 +23,15 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_06_154500) do
     t.index ["user_id"], name: "index_log_tasks_on_user_id"
   end
 
+  create_table "project_members", force: :cascade do |t|
+    t.integer "project_id", null: false
+    t.integer "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id"], name: "index_project_members_on_project_id"
+    t.index ["user_id"], name: "index_project_members_on_user_id"
+  end
+
   create_table "projects", force: :cascade do |t|
     t.string "name"
     t.string "code"
@@ -30,6 +39,13 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_06_154500) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_projects_on_user_id"
+  end
+
+  create_table "projects_users", id: false, force: :cascade do |t|
+    t.integer "project_id"
+    t.integer "user_id"
+    t.index ["project_id"], name: "index_projects_users_on_project_id"
+    t.index ["user_id"], name: "index_projects_users_on_user_id"
   end
 
   create_table "tasks", force: :cascade do |t|
@@ -61,6 +77,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_06_154500) do
 
   add_foreign_key "log_tasks", "tasks"
   add_foreign_key "log_tasks", "users"
+  add_foreign_key "project_members", "projects"
+  add_foreign_key "project_members", "users"
   add_foreign_key "projects", "users"
   add_foreign_key "tasks", "projects"
   add_foreign_key "tasks", "users"

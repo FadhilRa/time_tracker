@@ -1,37 +1,142 @@
-document.addEventListener("turbo:load", function () {
-    const searchInput = document.getElementById("searchUser");
+document.addEventListener("DOMContentLoaded", function() {
+  const searchUserInput = document.getElementById("searchUser");
   const userDropdown = document.getElementById("userDropdown");
-  
-  // Modifikasi ini agar mengambil elemen dengan class tertentu di dalam dropdown
-  const userItems = userDropdown.querySelectorAll(".dropdown-item"); 
+  const selectedMembersList = document.getElementById("selectedMembers");
+  const existingMembersList = document.getElementById("existingMembers");
+  let currentProjectId = null; // Deklarasi variabel di luar fungsi
 
-  searchInput.addEventListener("input", function () {
-    const searchTerm = searchInput.value.toLowerCase().trim();
-    let hasMatch = false;  // Inisialisasi flag untuk memeriksa apakah ada hasil yang cocok
+  // Ketika modal dibuka, ambil anggota yang ada
+  document.getElementById("members").addEventListener("show.bs.modal", function(event) {
+      const button = event.relatedTarget; // Tombol yang memicu modal
+      currentProjectId = button.getAttribute('data-project-id'); // Ambil projectId dari tombol
 
-    userItems.forEach(function (item) {
-      const username = item.getAttribute("data-username").toLowerCase();
-      const email = item.getAttribute("data-email").toLowerCase();
+      console.log("Project ID:", currentProjectId); // Log untuk memeriksa nilai
 
-      // Cocokkan username atau email dengan input
-      if (username.includes(searchTerm) || email.includes(searchTerm)) {
-        item.style.display = "flex";  // Tampilkan item yang cocok
-        hasMatch = true;  // Set flag jika ada kecocokan
-      } else {
-        item.style.display = "none";  // Sembunyikan item yang tidak cocok
+      if (!currentProjectId) {
+          console.error("Project ID is missing!"); // Log error
+          return; // Keluar dari fungsi jika ID tidak valid
       }
-      
-      console.log(item);
-    });
 
-    // Tampilkan dropdown jika ada hasil yang cocok, sembunyikan jika tidak ada
-    if (hasMatch) {
-      userDropdown.style.display = "block";
-      userDropdown.classList.add("show");  // Paksa tampilkan dropdown
-    } else {
-      userDropdown.style.display = "none";
-      userDropdown.classList.remove("show");  // Sembunyikan dropdown jika tidak ada hasil
-    }
+      // Mengambil anggota proyek
+      fetch(`/projects/${currentProjectId}/members`)
+          .then(response => {
+              if (!response.ok) {
+                  throw new Error('Network response was not ok');
+              }
+              return response.json();
+          })
+          .then(members => {
+              existingMembersList.innerHTML = ''; // Kosongkan daftar anggota yang ada
+              members.forEach(member => {
+                  const listItem = document.createElement('li');
+                  listItem.className = "list-group-item";
+                  listItem.textContent = `${member.username} (${member.email})`;
+                  existingMembersList.appendChild(listItem);
+              });
+          })
+          .catch(error => {
+              console.error("Error fetching members:", error);
+          });
+  });
+
+  // Logika untuk pencarian pengguna
+  searchUserInput.addEventListener("input", function() {
+      const query = searchUserInput.value.trim();
+      if (query) {
+          fetch(`/users/search?query=${query}`)
+              .then(response => response.json())
+              .then(users => {
+                  userDropdown.innerHTML = '';
+                  users.forEach(user => {
+                      const userItem = document.createElement('li');
+                      userItem.className = "dropdown-item user-item";
+                      userItem.setAttribute("data-user-id", user.id);
+                      userItem.setAttribute("data-username", user.username);
+                      userItem.setAttribute("data-email", user.email);
+                      userItem.innerHTML = `
+                          <div class="d-flex align-items-center">
+                              <div class="rounded-circle bg-light d-flex justify-content-center align-items-center" style="width: 40px; height: 40px;">
+                                  <span class="fw-bold text-dark">${user.username[0, 2].toUpperCase()}</span>
+                              </div>
+                              <div class="ms-3">
+                                  <p class="mb-0 fw-bold">${user.username}</p>
+                                  <p class="mb-0 text-muted" style="font-size: 0.9rem;">${user.email}</p>
+                              </div>
+                          </div>
+                      `;
+                      userItem.addEventListener('click', function() {
+                          addUserToSelected(user);
+                      });
+                      userDropdown.appendChild(userItem);
+                  });
+                  userDropdown.style.display = 'block';
+              });
+      } else {
+          userDropdown.style.display = 'none';
+      }
+  });
+
+  function addUserToSelected(user) {
+      const existingItems = selectedMembersList.querySelectorAll('.user-item');
+      const alreadySelected = Array.from(existingItems).some(item => item.dataset.userId === user.id.toString());
+      if (!alreadySelected) {
+          const listItem = document.createElement('li');
+          listItem.className = "list-group-item user-item";
+          listItem.dataset.userId = user.id;
+          listItem.innerHTML = `${user.username} <button class="btn btn-sm btn-danger remove-member" data-user-id="${user.id}">Remove</button>`;
+          selectedMembersList.appendChild(listItem);
+          userDropdown.style.display = 'none';
+          attachRemoveEvent(listItem);
+      }
+  }
+
+  function attachRemoveEvent(listItem) {
+      listItem.querySelector('.remove-member').addEventListener('click', function() {
+          listItem.remove();
+      });
+  }
+
+  // Simpan anggota yang dipilih
+  document.getElementById("saveMembersBtn").addEventListener("click", function() {
+      console.log("Saving members for Project ID:", currentProjectId); // Log untuk memeriksa projectId yang akan digunakan
+
+      if (!currentProjectId) {
+          alert("Project ID is missing!"); // Tampilkan alert jika projectId tidak ada
+          return; // Hentikan eksekusi jika projectId tidak valid
+      }
+
+      const selectedUserIds = Array.from(selectedMembersList.querySelectorAll('.user-item'))
+          .map(item => item.dataset.userId);
+
+      if (selectedUserIds.length === 0) {
+          alert("Please select at least one member."); // Tampilkan alert jika tidak ada anggota yang dipilih
+          return; // Hentikan eksekusi jika tidak ada anggota yang dipilih
+      }
+
+      fetch(`/projects/${currentProjectId}/add_members`, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+          },
+          body: JSON.stringify({ user_ids: selectedUserIds.join(',') })
+      })
+      .then(response => {
+          if (!response.ok) {
+              throw new Error('Network response was not ok');
+          }
+          return response.json();
+      })
+      .then(data => {
+          if (data.message) {
+              alert(data.message);
+              $('#members').modal('hide'); // Tutup modal setelah sukses
+          } else if (data.error) {
+              alert(data.error);
+          }
+      })
+      .catch(error => {
+          console.error("Error saving members:", error);
+      });
   });
 });
-  
