@@ -7,18 +7,21 @@ document.addEventListener('turbo:load', function() {
 
     projectSelect.addEventListener('change', function() {
         const projectId = this.value;
-        console.log(projectId);
-
-        fetch(`/projects/${projectId}/tasks`)
-            .then(response => response.json())
-            .then(data => {
-                let taskList = '';
-                data.tasks.forEach(task => {
-                    taskList += `<option value="${task.id}">${task.name}</option>`;
-                });
-                taskSelect.innerHTML = taskList;
-            })
-            .catch(error => console.error('Error fetching tasks:', error));
+        
+        if (projectId) {
+            fetch(`/projects/${projectId}/tasks`)
+                .then(response => response.json())
+                .then(data => {
+                    let taskList = '<option value="">Select Task</option>';
+                    data.tasks.forEach(task => {
+                        taskList += `<option value="${task.id}">${task.name}</option>`;
+                    });
+                    taskSelect.innerHTML = taskList;
+                })
+                .catch(error => console.error('Error fetching tasks:', error));
+        } else {
+            taskSelect.innerHTML = '<option value="">Select Task</option>'; // Kosongkan task jika tidak ada project
+        }
     });
 
     timerInput.addEventListener('input', function(e) {

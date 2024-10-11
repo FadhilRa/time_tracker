@@ -14,7 +14,7 @@
                     <input type="hidden" id="log_task_date" name="log_task[date]" />
                     <div class="fw-bold">Project / Task</div>
                     <select class="form-select mt-2" id="project-select">
-                        <option value=""></option>
+                        <option value="">Select Project</option>
 
                         <% current_user_projects = Project
                             .left_joins(:project_members)
@@ -31,7 +31,9 @@
                         <% end %>
                     </select>
 
-                    <%= form.collection_select :task_id, current_user.tasks.all, :id, :name, { prompt: "" }, { class: 'form-select mt-2', name: 'log_task[task_id]', id: 'task-select' } %>
+                    <select class="form-select mt-2" id="task-select" name="log_task[task_id]">
+                        <option value="">Select Task</option>
+                    </select>
                     
                     <div class="row mt-2">
                         <div class="col-9">

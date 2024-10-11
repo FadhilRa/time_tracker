@@ -11,8 +11,30 @@ document.addEventListener("turbo:load", function () {
             fetch(`log_tasks/${log_id}`)
                 .then(response => response.json())
                 .then(data => {
+                    // Set project-select value
                     document.getElementById("project-select").value = data.logTask.task.project.id;
-                    document.getElementById("task-select").value = data.logTask.task.id;
+
+                    // Fetch tasks related to the selected project
+                    if (data.logTask.task.project.id) {
+                        fetch(`/projects/${data.logTask.task.project.id}/tasks`)
+                            .then(response => response.json())
+                            .then(tasksData => {
+                                let taskList = '<option value="">Select Task</option>';
+                                tasksData.tasks.forEach(task => {
+                                    taskList += `<option value="${task.id}">${task.name}</option>`;
+                                });
+                                const taskSelect = document.getElementById("task-select");
+                                taskSelect.innerHTML = taskList;
+
+                                // After populating the task dropdown, set the selected task
+                                taskSelect.value = data.logTask.task.id; // Set the selected task
+                            })
+                            .catch(error => console.error('Error fetching tasks:', error));
+                    } else {
+                        document.getElementById("task-select").innerHTML = '<option value=""></option>'; // Kosongkan task jika tidak ada project
+                    }
+
+                    // Set other form fields
                     document.getElementById("log_task_notes").value = data.logTask.notes;
                     document.getElementById("log_task_timer").value = data.logTask.timer;
                     logTaskSubmit.value = "Update";

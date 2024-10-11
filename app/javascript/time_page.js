@@ -318,6 +318,7 @@ document.addEventListener("turbo:load", function () {
         logTaskForm.method = "POST";
         document.getElementById("project-select").value = '';
         document.getElementById("task-select").value = '';
+        document.getElementById("task-select").innerHTML = '<option value="">Select Task</option>';
         document.getElementById("log_task_notes").value = '';
         document.getElementById("log_task_timer").value = '';
         logTaskSubmit.value = "Start timer";
