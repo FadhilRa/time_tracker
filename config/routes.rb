@@ -11,7 +11,7 @@ Rails.application.routes.draw do
   end
   resource :time
   resource :log_task
-  resource :userz
+  resource :user
 
   get 'projects/:id/tasks', to: 'projects#tasks', as: :project_tasks
   get 'log_tasks/:date/log_list', to: 'log_tasks#log_list', as: :log_list
